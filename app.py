@@ -58,6 +58,10 @@ async def gupshup_webhook(request: Request):
     # Always return a 200 OK success status to Gupshup so they don't retry sending the message
     return {"status": "success"}
 
+@app.get("/")
+async def root():
+    return {"message": "Server is running! Webhooks are located at /webhook/gupshup"}
+
 if __name__ == "__main__":
     print("🚀 Starting Gupshup Webhook Server on port 8000...")
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
