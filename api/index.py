@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Gupshup Sandbox Bot")
 
-GUPSHUP_API_KEY = "sk_cf00f6dfca5f4f1c88110a5e048cc6d7" 
+GUPSHUP_API_KEY = "j8lljkz3vaclvqae0ozyrvqyeijmualr"
 GUPSHUP_APP_NAME = "AIMosque"
 GUPSHUP_SANDBOX_NUMBER = "917834811114"
 
