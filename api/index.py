@@ -37,7 +37,8 @@ async def send_whatsapp_message(destination_phone: str, message_payload: dict):
     
     async with httpx.AsyncClient() as client:
         response = await client.post(url, headers=headers, data=data)
-        if response.status_code == 200:
+        # --- UPDATE THIS IF STATEMENT ---
+        if response.status_code in [200, 202]:
             logger.info(f"✅ Successfully sent reply to {destination_phone}.")
         else:
             logger.error(f"❌ Failed to send reply. Gupshup Status: {response.status_code} - {response.text}")
