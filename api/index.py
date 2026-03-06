@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Gupshup Sandbox Bot")
 
-GUPSHUP_API_KEY = "j8lljkz3vaclvqae0ozyrvqyeijmualr"
+# ⚠️ Paste your correct Sandbox Account API Key here again!
+GUPSHUP_API_KEY = "j8lljkz3vaclvqae0ozyrvqyeijmualr" 
 GUPSHUP_APP_NAME = "AIMosque"
 GUPSHUP_SANDBOX_NUMBER = "917834811114"
 
@@ -32,8 +33,7 @@ async def send_whatsapp_message(destination_phone: str, message_payload: dict):
         "src.name": GUPSHUP_APP_NAME
     }
     
-    # Log exactly what we are about to send
-    logger.info(f"📤 Sending payload to {destination_phone}: {data['message']}")
+    logger.info(f"📤 Sending payload to {destination_phone}")
     
     async with httpx.AsyncClient() as client:
         response = await client.post(url, headers=headers, data=data)
@@ -54,10 +54,20 @@ async def gupshup_webhook(request: Request):
         
         if payload.get("type") == "message":
             sender_phone = payload["payload"]["sender"]["phone"]
-            incoming_text = payload["payload"]["payload"]["text"].strip()
+            message_type = payload["payload"]["type"]
             
-            logger.info(f"💬 User {sender_phone} said: '{incoming_text}'")
+            # --- THE FIX: Handle both Typed Text and Menu Clicks ---
+            if message_type == "text":
+                incoming_text = payload["payload"]["payload"]["text"].strip()
+            elif message_type == "list_reply":
+                # When a user clicks a list menu, Gupshup sends the button's "title"
+                incoming_text = payload["payload"]["payload"]["title"].strip()
+            else:
+                incoming_text = "" # Fallback for images, locations, etc.
             
+            logger.info(f"💬 User {sender_phone} action ({message_type}): '{incoming_text}'")
+            
+            # --- Tawasol Bot Logic ---
             if incoming_text == "Leave Request":
                 reply = {
                     "type": "text",
@@ -101,7 +111,3 @@ async def gupshup_webhook(request: Request):
 @app.get("/")
 async def root():
     return {"message": "Server is running! Webhooks are located at /webhook/gupshup"}
-
-if __name__ == "__main__":
-    logger.info("🚀 Starting Gupshup Webhook Server on port 8000...")
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
